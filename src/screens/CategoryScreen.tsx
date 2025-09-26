@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'react-native-blur';
+import { BlurView } from 'expo-blur';
 
 interface Podcast {
   id: string;
@@ -95,7 +95,7 @@ export default function CategoryScreen({
         }
       >
         {/* Header */}
-        <BlurView style={styles.header} blurType="dark" blurAmount={10}>
+        <BlurView style={styles.header} tint="dark" intensity={50}>
           <View style={styles.headerContent}>
             <View style={styles.categoryInfo}>
               <Text style={[styles.categoryIcon, { color: category.color_hex }]}>

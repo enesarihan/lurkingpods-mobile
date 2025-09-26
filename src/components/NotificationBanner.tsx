@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'react-native-blur';
+import { BlurView } from 'expo-blur';
 
 interface NotificationBannerProps {
   title: string;
@@ -134,7 +134,7 @@ export default function NotificationBanner({
         },
       ]}
     >
-      <BlurView style={styles.banner} blurType="dark" blurAmount={10}>
+      <BlurView style={styles.banner} tint="dark" intensity={50}>
         <LinearGradient
           colors={config.colors}
           style={styles.gradient}

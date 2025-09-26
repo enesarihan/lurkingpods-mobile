@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'react-native-blur';
+import { BlurView } from 'expo-blur';
 
 interface User {
   id: string;
@@ -115,7 +115,7 @@ export default function ProfileScreen({
         </View>
 
         {/* User Info */}
-        <BlurView style={styles.userInfo} blurType="dark" blurAmount={10}>
+        <BlurView style={styles.userInfo} tint="dark" intensity={50}>
           <View style={styles.userContent}>
             <View style={styles.userAvatar}>
               <Text style={styles.userAvatarText}>

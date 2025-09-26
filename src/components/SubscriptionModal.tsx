@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'react-native-blur';
+import { BlurView } from 'expo-blur';
 
 interface SubscriptionPlan {
   id: string;
@@ -143,8 +143,8 @@ export default function SubscriptionModal({
 
                 <BlurView
                   style={styles.planContent}
-                  blurType="dark"
-                  blurAmount={10}
+                  tint="dark"
+                  intensity={50}
                 >
                   <View style={styles.planHeader}>
                     <Text style={styles.planName}>{plan.name}</Text>

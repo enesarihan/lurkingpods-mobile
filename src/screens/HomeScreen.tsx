@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'react-native-blur';
+import { BlurView } from 'expo-blur';
 import LottieView from 'lottie-react-native';
 
 interface Podcast {
@@ -106,7 +106,7 @@ export default function HomeScreen({
 
         {/* Featured Podcast */}
         {featuredPodcast && (
-          <BlurView style={styles.featuredContainer} blurType="dark" blurAmount={10}>
+          <BlurView style={styles.featuredContainer} tint="dark" intensity={50}>
             <View style={styles.featuredContent}>
               <View style={styles.featuredHeader}>
                 <Text style={styles.featuredTitle}>Today's Featured</Text>

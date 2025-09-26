@@ -11,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'react-native-blur';
+import { BlurView } from 'expo-blur';
 
 interface AuthScreenProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -64,8 +64,8 @@ export default function AuthScreen({ onLogin, onRegister }: AuthScreenProps) {
 
           <BlurView
             style={styles.formContainer}
-            blurType="dark"
-            blurAmount={10}
+            tint="dark"
+            intensity={50}
           >
             <View style={styles.form}>
               <Text style={styles.formTitle}>

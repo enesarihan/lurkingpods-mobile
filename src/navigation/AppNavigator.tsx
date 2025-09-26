@@ -2,8 +2,9 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { BlurView } from 'react-native-blur';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Text, TouchableOpacity } from 'react-native';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -94,8 +95,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         borderTopWidth: 1,
         borderTopColor: 'rgba(255, 255, 255, 0.1)',
       }}
-      blurType="dark"
-      blurAmount={10}
+      tint="dark"
+      intensity={50}
     >
       <LinearGradient
         colors={['rgba(0, 0, 0, 0.8)', 'rgba(0, 0, 0, 0.9)']}
@@ -180,14 +181,14 @@ function MainTabNavigator() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeScreen as unknown as React.ComponentType<any>}
         options={{
           tabBarLabel: 'Home',
         }}
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileScreen as unknown as React.ComponentType<any>}
         options={{
           tabBarLabel: 'Profile',
         }}
@@ -209,14 +210,14 @@ function RootStackNavigator() {
       <Stack.Screen name="Main" component={MainTabNavigator} />
       <Stack.Screen
         name="Player"
-        component={PlayerScreen}
+        component={PlayerScreen as unknown as React.ComponentType<any>}
         options={{
-          presentation: 'fullScreenModal',
+          presentation: 'modal',
         }}
       />
       <Stack.Screen
         name="Category"
-        component={CategoryScreen}
+        component={CategoryScreen as unknown as React.ComponentType<any>}
         options={{
           presentation: 'card',
         }}

@@ -9,7 +9,7 @@ import {
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'react-native-blur';
+import { BlurView } from 'expo-blur';
 import TrackPlayer, { State, useTrackPlayerEvents, Event } from 'react-native-track-player';
 
 interface Podcast {
@@ -207,7 +207,7 @@ export default function PlayerScreen({
         </View>
 
         {/* Podcast Info */}
-        <BlurView style={styles.podcastInfo} blurType="dark" blurAmount={10}>
+        <BlurView style={styles.podcastInfo} tint="dark" intensity={50}>
           <View style={styles.podcastContent}>
             <Text style={styles.podcastTitle}>{podcast.title}</Text>
             <Text style={styles.podcastDescription}>{podcast.description}</Text>
@@ -252,7 +252,7 @@ export default function PlayerScreen({
 
         {/* Current Speaker */}
         {getCurrentSpeaker() && (
-          <BlurView style={styles.speakerContainer} blurType="dark" blurAmount={10}>
+          <BlurView style={styles.speakerContainer} tint="dark" intensity={50}>
             <View style={styles.speakerContent}>
               <View style={styles.speakerInfo}>
                 <View style={[
