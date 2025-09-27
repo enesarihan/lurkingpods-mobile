@@ -82,31 +82,31 @@ export default function NotificationBanner({
     switch (type) {
       case 'success':
         return {
-          colors: ['#4CAF50', '#45a049'],
+          colors: ['#4CAF50', '#45a049'] as const,
           icon: '✓',
           iconColor: '#FFFFFF',
         };
       case 'info':
         return {
-          colors: ['#2196F3', '#1976D2'],
+          colors: ['#2196F3', '#1976D2'] as const,
           icon: 'ℹ',
           iconColor: '#FFFFFF',
         };
       case 'warning':
         return {
-          colors: ['#FF9800', '#F57C00'],
+          colors: ['#FF9800', '#F57C00'] as const,
           icon: '⚠',
           iconColor: '#FFFFFF',
         };
       case 'error':
         return {
-          colors: ['#F44336', '#D32F2F'],
+          colors: ['#F44336', '#D32F2F'] as const,
           icon: '✕',
           iconColor: '#FFFFFF',
         };
       default:
         return {
-          colors: ['#AE8EFF', '#8B5CF6'],
+          colors: ['#AE8EFF', '#8B5CF6'] as const,
           icon: 'ℹ',
           iconColor: '#FFFFFF',
         };

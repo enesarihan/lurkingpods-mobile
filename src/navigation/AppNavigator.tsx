@@ -206,7 +206,7 @@ function RootStackNavigator() {
         presentation: 'modal',
       }}
     >
-      <Stack.Screen name="Auth" component={AuthScreen} />
+      <Stack.Screen name="Auth" component={AuthScreen as unknown as React.ComponentType<any>} />
       <Stack.Screen name="Main" component={MainTabNavigator} />
       <Stack.Screen
         name="Player"
