@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import ApiService from '../services/api';
 
 interface Podcast {
   id: string;

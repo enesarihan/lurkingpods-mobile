@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,21 +9,24 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 
-interface AuthScreenProps {
-  onLogin: (email: string, password: string) => Promise<void>;
-  onRegister: (email: string, password: string, language: 'en' | 'tr') => Promise<void>;
-}
+import { useAuthStore } from '../store/useAuthStore';
 
-export default function AuthScreen({ onLogin, onRegister }: AuthScreenProps) {
+export default function AuthScreen() {
+  const { login, register, isLoading, error } = useAuthStore();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [language, setLanguage] = useState<'en' | 'tr'>('en');
-  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Error', error);
+    }
+  }, [error]);
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -31,17 +34,17 @@ export default function AuthScreen({ onLogin, onRegister }: AuthScreenProps) {
       return;
     }
 
-    setLoading(true);
     try {
       if (isLogin) {
-        await onLogin(email, password);
+        await login(email, password);
+        Alert.alert('Success', 'Logged in successfully!');
       } else {
-        await onRegister(email, password, language);
+        await register(email, password, language);
+        Alert.alert('Success', 'Account created! Enjoy your 2-day trial.');
       }
     } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+      // Error handled by useAuthStore
+      console.error('Auth error:', error);
     }
   };
 
@@ -56,6 +59,11 @@ export default function AuthScreen({ onLogin, onRegister }: AuthScreenProps) {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
+            <Image 
+              source={require('../../assets/logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>LurkingPods</Text>
             <Text style={styles.subtitle}>
               AI-Powered Daily Podcasts
@@ -131,12 +139,12 @@ export default function AuthScreen({ onLogin, onRegister }: AuthScreenProps) {
               />
 
               <TouchableOpacity
-                style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+                style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}
                 onPress={handleSubmit}
-                disabled={loading}
+                disabled={isLoading}
               >
                 <Text style={styles.submitButtonText}>
-                  {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Sign Up')}
+                  {isLoading ? 'Loading...' : (isLogin ? 'Sign In' : 'Sign Up')}
                 </Text>
               </TouchableOpacity>
 
@@ -185,6 +193,11 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 40,
+  },
+  logo: {
+    width: 200,
+    height: 200,
+    marginBottom: -50,
   },
   title: {
     fontSize: 32,

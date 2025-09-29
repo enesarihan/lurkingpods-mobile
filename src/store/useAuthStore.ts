@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ApiService from '../services/api';
 
 interface User {
   id: string;
@@ -57,24 +59,11 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null });
         
         try {
-          // API call would go here
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Login failed');
-          }
-
-          const data = await response.json();
+          const data = await ApiService.login(email, password);
           
           set({
             user: data.user,
-            subscription: data.subscription,
+            subscription: data.trial_info,
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -92,24 +81,11 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null });
         
         try {
-          // API call would go here
-          const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password, language_preference: language }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Registration failed');
-          }
-
-          const data = await response.json();
+          const data = await ApiService.register(email, password, language);
           
           set({
             user: data.user,
-            subscription: data.subscription,
+            subscription: data.trial_info,
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -159,6 +135,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: 'auth-storage',
+      storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         user: state.user,
         subscription: state.subscription,
