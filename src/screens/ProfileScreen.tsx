@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface User {
   id: string;
@@ -32,23 +33,54 @@ interface Subscription {
 }
 
 interface ProfileScreenProps {
-  user: User;
-  subscription: Subscription;
-  onUpdatePreferences: (preferences: Partial<User>) => Promise<void>;
-  onUpgradeSubscription: () => void;
-  onLogout: () => void;
+  user?: User;
+  subscription?: Subscription;
+  onUpdatePreferences?: (preferences: Partial<User>) => Promise<void>;
+  onUpgradeSubscription?: () => void;
+  onLogout?: () => void;
 }
 
-export default function ProfileScreen({
-  user,
-  subscription,
-  onUpdatePreferences,
-  onUpgradeSubscription,
-  onLogout,
-}: ProfileScreenProps) {
-  const [notificationEnabled, setNotificationEnabled] = useState(user.notification_enabled);
-  const [languagePreference, setLanguagePreference] = useState(user.language_preference);
-  const [themePreference, setThemePreference] = useState(user.theme_preference);
+export default function ProfileScreen(props: ProfileScreenProps) {
+  const store = useAuthStore();
+  const mergedUser = useMemo(() => {
+    const u: any = props.user ?? store.user ?? {};
+    // Coerce date-like fields
+    if (u && u.trial_end_date && typeof u.trial_end_date === 'string') {
+      u.trial_end_date = new Date(u.trial_end_date);
+    }
+    if (u && u.trial_start_date && typeof u.trial_start_date === 'string') {
+      u.trial_start_date = new Date(u.trial_start_date);
+    }
+    return u as User;
+  }, [props.user, store.user]);
+
+  const mergedSubscription: Subscription = props.subscription ?? (store as any).subscription ?? {
+    is_subscribed: false,
+    subscription_type: null,
+    end_date: null,
+    is_expired: false,
+  };
+
+  const onUpdatePreferences = props.onUpdatePreferences ?? (async () => {});
+  const onUpgradeSubscription = props.onUpgradeSubscription ?? (() => {});
+  const onLogout = props.onLogout ?? (() => store.logout());
+
+  if (!mergedUser || !mergedUser.email) {
+    return (
+      <LinearGradient colors={['#000000', '#1a1a1a']} style={styles.container}>
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Profile</Text>
+            <Text style={styles.subtitle}>Please sign in to view your profile</Text>
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    );
+  }
+
+  const [notificationEnabled, setNotificationEnabled] = useState(!!mergedUser.notification_enabled);
+  const [languagePreference, setLanguagePreference] = useState(mergedUser.language_preference);
+  const [themePreference, setThemePreference] = useState(mergedUser.theme_preference);
 
   const handleNotificationToggle = async (value: boolean) => {
     setNotificationEnabled(value);
@@ -78,14 +110,17 @@ export default function ProfileScreen({
 
   const getTrialDaysRemaining = () => {
     const now = new Date();
-    const diff = user.trial_end_date.getTime() - now.getTime();
+    const endDate = mergedUser.trial_end_date instanceof Date
+      ? mergedUser.trial_end_date
+      : new Date(mergedUser.trial_end_date as any);
+    const diff = endDate.getTime() - now.getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
   const getSubscriptionStatusText = () => {
-    if (subscription.is_subscribed) {
+    if (mergedSubscription.is_subscribed) {
       return `Active (${subscription.subscription_type})`;
-    } else if (user.subscription_status === 'trial') {
+    } else if (mergedUser.subscription_status === 'trial') {
       return `Trial (${getTrialDaysRemaining()} days left)`;
     } else {
       return 'Expired';
@@ -93,9 +128,9 @@ export default function ProfileScreen({
   };
 
   const getSubscriptionStatusColor = () => {
-    if (subscription.is_subscribed) {
+    if (mergedSubscription.is_subscribed) {
       return '#4CAF50';
-    } else if (user.subscription_status === 'trial') {
+    } else if (mergedUser.subscription_status === 'trial') {
       return '#FF9800';
     } else {
       return '#F44336';
@@ -119,11 +154,11 @@ export default function ProfileScreen({
           <View style={styles.userContent}>
             <View style={styles.userAvatar}>
               <Text style={styles.userAvatarText}>
-                {user.email.charAt(0).toUpperCase()}
+                {mergedUser.email.charAt(0).toUpperCase()}
               </Text>
             </View>
             <View style={styles.userDetails}>
-              <Text style={styles.userEmail}>{user.email}</Text>
+              <Text style={styles.userEmail}>{mergedUser.email}</Text>
               <Text style={styles.userStatus}>
                 {getSubscriptionStatusText()}
               </Text>
@@ -138,7 +173,7 @@ export default function ProfileScreen({
           <View style={styles.subscriptionCard}>
             <View style={styles.subscriptionInfo}>
               <Text style={styles.subscriptionTitle}>
-                {subscription.is_subscribed ? 'Premium Active' : 'Free Trial'}
+                {mergedSubscription.is_subscribed ? 'Premium Active' : 'Free Trial'}
               </Text>
               <Text style={[
                 styles.subscriptionStatus,
@@ -148,7 +183,7 @@ export default function ProfileScreen({
               </Text>
             </View>
             
-            {!subscription.is_subscribed && (
+            {!mergedSubscription.is_subscribed && (
               <TouchableOpacity
                 style={styles.upgradeButton}
                 onPress={onUpgradeSubscription}

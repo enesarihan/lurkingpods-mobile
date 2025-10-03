@@ -8,10 +8,11 @@ import {
   RefreshControl,
   Dimensions,
   Image,
+  ActivityIndicator,
 } from 'react-native';
+import ApiService from '../services/api';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import LottieView from 'lottie-react-native';
 
 interface Podcast {
   id: string;
@@ -47,16 +48,17 @@ interface HomeScreenProps {
   loading: boolean;
 }
 
-export default function HomeScreen({
-  podcasts,
-  categories,
-  nextUpdate,
-  onRefresh,
-  onPodcastPress,
-  onCategoryPress,
-  loading,
-}: HomeScreenProps) {
+export default function HomeScreen(props?: Partial<HomeScreenProps>) {
+  const podcasts = props?.podcasts ?? [];
+  const categories = props?.categories ?? [];
+  const nextUpdate: Date = props?.nextUpdate ? new Date(props.nextUpdate) : new Date(Date.now() + 60 * 60 * 1000);
+  const onRefresh = props?.onRefresh ?? (async () => {});
+  const onPodcastPress = props?.onPodcastPress ?? (() => {});
+  const onCategoryPress = props?.onCategoryPress ?? (() => {});
+  const loading = props?.loading ?? false;
   const [timeUntilUpdate, setTimeUntilUpdate] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateStatus, setGenerateStatus] = useState<string | null>(null);
 
   useEffect(() => {
     const updateTimer = () => {
@@ -105,6 +107,50 @@ export default function HomeScreen({
           </View>
         </View>
 
+        {/* Generate Today Button (test) */}
+        <View style={{ paddingHorizontal: 20, marginBottom: 10 }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#AE8EFF',
+              paddingVertical: 12,
+              borderRadius: 10,
+              alignItems: 'center',
+            }}
+            disabled={isGenerating}
+            onPress={async () => {
+              try {
+                setIsGenerating(true);
+                setGenerateStatus('İçerik hazırlanıyor (Gemini)...');
+                const res = await fetch('https://lurkingpods-api.vercel.app/content/generate-today', { method: 'POST' });
+                setGenerateStatus('Ses oluşturuluyor (ElevenLabs)...');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.error || 'Generate failed');
+                setGenerateStatus('Supabase Storage’a yükleniyor...');
+                // Endpoint zaten upload yapıyor; kullanıcıya bilgi ver
+                alert('Oluşturuldu! URL: ' + (data.audioUrl || '—'));
+              } catch (e: any) {
+                alert('Oluşturma hatası: ' + e.message);
+              }
+              finally {
+                setIsGenerating(false);
+                setGenerateStatus(null);
+              }
+            }}
+          >
+            {isGenerating ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <ActivityIndicator color="#000" />
+                <Text style={{ color: '#000', fontWeight: 'bold' }}>Oluşturuluyor...</Text>
+              </View>
+            ) : (
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>Bugünün Podcastini Oluştur</Text>
+            )}
+          </TouchableOpacity>
+          {generateStatus && (
+            <Text style={{ color: '#AE8EFF', marginTop: 8 }}>{generateStatus}</Text>
+          )}
+        </View>
+
         {/* Featured Podcast */}
         {featuredPodcast && (
           <BlurView style={styles.featuredContainer} tint="dark" intensity={50}>
@@ -136,11 +182,10 @@ export default function HomeScreen({
                 </View>
                 
                 <View style={styles.playButton}>
-                  <LottieView
-                    source={require('../../assets/animations/play.json')}
-                    autoPlay
-                    loop
+                  <Image
+                    source={require('../../assets/icon.png')}
                     style={styles.playAnimation}
+                    resizeMode="contain"
                   />
                 </View>
               </TouchableOpacity>

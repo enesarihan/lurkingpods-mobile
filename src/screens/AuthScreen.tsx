@@ -15,9 +15,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 
 import { useAuthStore } from '../store/useAuthStore';
+import { useNavigation } from '@react-navigation/native';
 
 export default function AuthScreen() {
   const { login, register, isLoading, error } = useAuthStore();
+  const navigation = useNavigation<any>();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,10 +39,10 @@ export default function AuthScreen() {
     try {
       if (isLogin) {
         await login(email, password);
-        Alert.alert('Success', 'Logged in successfully!');
+        navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
       } else {
         await register(email, password, language);
-        Alert.alert('Success', 'Account created! Enjoy your 2-day trial.');
+        navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
       }
     } catch (error) {
       // Error handled by useAuthStore

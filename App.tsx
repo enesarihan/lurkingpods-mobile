@@ -1,11 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
-import AuthScreen from './src/screens/AuthScreen';
+import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <AuthScreen />
+      <AppNavigator />
       <StatusBar style="light" />
     </View>
   );
